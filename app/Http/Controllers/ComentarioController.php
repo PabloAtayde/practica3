@@ -61,9 +61,10 @@ class ComentarioController extends Controller
      * @param  \App\Comentario  $comentario
      * @return \Illuminate\Http\Response
      */
-    public function show(Comentario $comentario)
+    public function show(Comentario $comentario, int $id=0)
     {
-        //
+        $comentarios = ($id==0)? Comentario::all():Comentario::find($id);
+        return response()->json($comentarios, 200);
     }
 
     /**
@@ -84,9 +85,12 @@ class ComentarioController extends Controller
      * @param  \App\Comentario  $comentario
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Comentario $comentario)
+    public function updatetitulo(int $id,string $titulo)
     {
-        //
+        $update= Comentario::find($id);
+        $update->titulo=$titulo;
+        $update->save();
+        return response()->json(["Update Finish"=>Comentario::find($update->id)],200);
     }
 
     /**
@@ -95,9 +99,43 @@ class ComentarioController extends Controller
      * @param  \App\Comentario  $comentario
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Comentario $comentario)
+    public function destroy(int $id)
     {
-        //
+        Comentarios::destroy($id);
+        return response()->json('delete',200);
+
+    }
+    public function consulPerson(int $persona_id, int $id ){
+        return response()->json([
+            'Persona'=>( $id==null)? 
+            Comentario::where('persona_id', $persona_id)->get():
+            Comentario::where('persona_id', $persona_id)->where('id',$id)->get()
+        ],200);
+    }
+
+    public function comentPubli(int $publicacion_id, int $id = NULL){
+        return response()->json([
+         'Respuesta'=>($id==null)?
+         Comentario::where('publicacion_id', $publicacion_id)->get():
+         Comentario::where('publicacion_id', $publicacion_id)->where('id', $id)->get()
+        ], 200);
+
+    }
+    public function personPubliComent(int $persona_id, int $publicacion_id, int $id = NULL){
+        return response()->json([
+         'Respuesta'=>($id==null)?
+         Comentario::where('persona_id', $persona_id)->where('publicacion_id', $publicacion_id)->get():
+         Comentario::where('persona_id', $persona_id)->where('publicacion_id', $publicacion_id)->where('id', $id)->get()
+        ], 200);
+
+    }
+    public function showalll(){
+       return response()->json([
+           'Respuesta' => DB::table('Comentarios')->join('publicacion', 'publicacion.id','=','comentario.publicacion_id')
+           ->join('personas', 'personas.id', '=' , 'comentario.persona_id')
+           ->select('comentario.', 'publicacione.', 'persona.*')->get()
+
+       ], 200); 
     }
     public static function enviarEmail($idUser){
         $comentario = DB::table('users')->select('email')->where('id','=',$idUser)->first();

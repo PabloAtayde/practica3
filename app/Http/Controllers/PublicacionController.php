@@ -68,9 +68,10 @@ class PublicacionController extends Controller
      * @param  \App\Publicacion  $publicacion
      * @return \Illuminate\Http\Response
      */
-    public function show(Publicacion $publicacion)
+    public function showme(Publicacion $publicacion, int $id=0)
     {
-        //
+        $publicaciones = ($id==0)? Publicacion::all():Publicacion::find($id);
+        return response()->json($publicacion, 200);
     }
 
     /**
@@ -91,9 +92,12 @@ class PublicacionController extends Controller
      * @param  \App\Publicacion  $publicacion
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Publicacion $publicacion)
+    public function updatetitulo(int $id,string $titulo)
     {
-        //
+        $update= Publicacion::find($id);
+        $update->titulo=$titulo;
+        $update->save();
+        return response()->json(["Update Finish"=>Publicacion::find($update->id)],200);
     }
 
     /**
@@ -102,8 +106,10 @@ class PublicacionController extends Controller
      * @param  \App\Publicacion  $publicacion
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Publicacion $publicacion)
+    public function destroy(int $id)
     {
-        //
+        Publicacion::destroy($id);
+        return response()->json('delete',200);
+
     }
 }
